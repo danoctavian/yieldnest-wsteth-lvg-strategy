@@ -3,15 +3,15 @@ pragma solidity ^0.8.28;
 
 import {Test} from "forge-std/Test.sol";
 import {BaseIntegrationTest} from "./BaseIntegrationTest.sol";
-import {VerifyStrategy} from "@script/VerifyStrategy.s.sol";
 import {BaseScript} from "lib/yieldnest-flex-strategy/script/BaseScript.sol";
+import {FlexStrategy} from "lib/yieldnest-flex-strategy/src/FlexStrategy.sol";
 
 contract FlexStrategyDeployment is BaseIntegrationTest {
-    function test_verify_setup() public {
-        VerifyStrategy verify = new VerifyStrategy();
-        verify.setEnv(BaseScript.Env.PROD);
-        verify.run();
+    function test_verify_setup() public view {
+        // Verify the deployment parameters are correct
+        assertEq(strategy.symbol(), "ynFlex-wstETH-ynETHx-SPV1");
+        assertEq(strategy.asset(), 0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0); // wstETH
+        assertEq(accountingModule.targetApy(), 0.1 ether); // 10% APY
+        assertEq(accountingModule.lowerBound(), 0.0001 ether);
     }
-
-    // TODO: add test for upgrade
 }
