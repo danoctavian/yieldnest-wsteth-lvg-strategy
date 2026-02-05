@@ -28,8 +28,9 @@ contract VerifyStrategy is VerifyFlexStrategy {
             contracts = IContracts(new L1Contracts());
         }
 
-        address[] memory _allocators = new address[](1);
+        address[] memory _allocators = new address[](2);
         _allocators[0] = YNETHX;
+        _allocators[1] = _actors.EOA_BOOTSTRAPPER();
 
         setVerificationParameters(
             VerifyFlexStrategy.VerificationParameters({
