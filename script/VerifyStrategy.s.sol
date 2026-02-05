@@ -40,7 +40,7 @@ contract VerifyStrategy is VerifyFlexStrategy {
                 accountTokenSymbol: "ynFlexwstETH-ynETHx-LVG1-Tok",
                 decimals: 18, // 18 decimals for wstETH
                 paused: true,
-                targetApy: 0.1 ether, // max 10% rewards per year
+                targetApy: 0.05 ether, // max 5% rewards per year
                 lowerBound: 0.0001 ether, // Ability to mark 0.01% of TVL as losses
                 minRewardableAssets: 1e18, // min 1 wstETH
                 accountingProcessor: _actors.PROCESSOR(),

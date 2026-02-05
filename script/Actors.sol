@@ -33,7 +33,7 @@ contract MainnetStrategyActors is IActors {
 
     address public constant REWARDS_SWEEPER_ADMIN = 0x5Bf7a88e755EABa97BE36EFfB34B32793e140Fa3;
 
-    address public constant SAFE = 0xb34E69c23Df216334496DFFd455618249E6bbFa9;
+    address public constant SAFE = 0x24D2486F5b2C2c225B6be8B4f72D46349cBf4458;
 
     address public constant EOA_BOOTSTRAPPER = YnEOABoostrapper;
 }
