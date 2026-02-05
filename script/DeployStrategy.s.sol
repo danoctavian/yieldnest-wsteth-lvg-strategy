@@ -26,10 +26,10 @@ contract DeployStrategy is DeployFlexStrategy {
 
         setDeploymentParameters(
             BaseScript.DeploymentParameters({
-                name: "YieldNest wstETH Flex Strategy - ynETHx - SPV1",
-                symbol_: "ynFlex-wstETH-ynETHx-SPV1",
-                accountTokenName: "YieldNest Flex Strategy - ynETHx - SPV1 Accounting Token",
-                accountTokenSymbol: "ynFlexwstETH-ynETHx-SPV1-Tok",
+                name: "YieldNest wstETH Flex Strategy - ynETHx - LVG1",
+                symbol_: "ynFlex-wstETH-ynETHx-LVG1",
+                accountTokenName: "YieldNest Flex Strategy - ynETHx - LVG1 Accounting Token",
+                accountTokenSymbol: "ynFlexwstETH-ynETHx-LVG1-Tok",
                 decimals: 18, // 18 decimals for wstETH
                 paused: true,
                 targetApy: 0.1 ether, // max 10% rewards per year

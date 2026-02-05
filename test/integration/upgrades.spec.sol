@@ -19,7 +19,7 @@ contract UpgradesTest is BaseIntegrationTest {
 
     function testDeploymentParameters() public {
         // // Check if the deployment parameters are set correctly
-        assertEq(strategy.symbol(), "ynFlex-wstETH-ynETHx-SPV1");
+        assertEq(strategy.symbol(), "ynFlex-wstETH-ynETHx-LVG1");
         assertEq(strategy.asset(), 0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0);
     }
 

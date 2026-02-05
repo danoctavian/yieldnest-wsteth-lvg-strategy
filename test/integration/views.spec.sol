@@ -14,7 +14,7 @@ contract VaultMainnetUpgradeTest is BaseIntegrationTest {
         super.setUp();
     }
 
-    function test_wsteth_ynethx_spv1_views() public view {
+    function test_wsteth_ynethx_lvg1_views() public view {
         // Get wstETH token and strategy
         IERC20 wsteth = IERC20(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0); // wstETH on mainnet
 
