@@ -2,7 +2,6 @@ pragma solidity ^0.8.28;
 
 import "forge-std/Test.sol";
 import {BaseIntegrationTest} from "./BaseIntegrationTest.sol";
-import {RewardsSweeper} from "lib/yieldnest-flex-strategy/src/utils/RewardsSweeper.sol";
 import {TransparentUpgradeableProxy} from
     "lib/openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {UpgradeUtils} from "lib/yieldnest-flex-strategy/script/UpgradeUtils.sol";
@@ -20,26 +19,8 @@ contract UpgradesTest is BaseIntegrationTest {
 
     function testDeploymentParameters() public {
         // // Check if the deployment parameters are set correctly
-        assertEq(strategy.symbol(), "ynFlex-USDC-ynRWAx-SPV1");
-        assertEq(strategy.asset(), 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
-    }
-
-    function testRewardsSweeperUpgrade() public {
-        // Deploy a new implementation of RewardsSweeper
-        RewardsSweeper newRewardsSweeperImplementation = new RewardsSweeper();
-
-        UpgradeUtils.timelockUpgrade(
-            deployment.timelock(),
-            deployment.actors().ADMIN(),
-            address(deployment.rewardsSweeper()),
-            address(newRewardsSweeperImplementation)
-        );
-
-        assertEq(
-            address(ProxyUtils.getImplementation(address(deployment.rewardsSweeper()))),
-            address(newRewardsSweeperImplementation),
-            "Rewards Sweeper implementation address mismatch after upgrade"
-        );
+        assertEq(strategy.symbol(), "ynFlex-wstETH-ynETHx-LVG1");
+        assertEq(strategy.asset(), 0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0);
     }
 
     function testAccountingModuleUpgrade() public {

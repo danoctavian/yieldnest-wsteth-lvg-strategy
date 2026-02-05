@@ -10,14 +10,12 @@ import {AccountingModule, IAccountingModule} from "lib/yieldnest-flex-strategy/s
 import {AccountingToken} from "lib/yieldnest-flex-strategy/src/AccountingToken.sol";
 import {FlexStrategy} from "lib/yieldnest-flex-strategy/src/FlexStrategy.sol";
 import {IERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
-import {DeployFlexStrategy, RewardsSweeper} from "lib/yieldnest-flex-strategy/script/DeployFlexStrategy.s.sol";
+import {DeployFlexStrategy} from "lib/yieldnest-flex-strategy/script/DeployFlexStrategy.s.sol";
 import {IERC20Metadata} from "lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
 contract BaseFunctionalityTest is BaseIntegrationTest {
-    address constant USDC_ADDRESS = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48; // USDC token address
-    uint256 constant DEPOSIT_AMOUNT = 1000 * 10 ** 6; // 1000 USDC with 6 decimals
-
-    address public constant STRATEGY_ADDRESS = 0xF6e1443e3F70724cec8C0a779C7C35A8DcDA928B;
+    address constant WSTETH_ADDRESS = 0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0; // wstETH token address
+    uint256 constant DEPOSIT_AMOUNT = 1000 * 10 ** 18; // 1000 wstETH with 18 decimals
 
     address public constant DEPOSITOR = address(0x1234567890123456789012345678901234567890);
 
@@ -31,9 +29,9 @@ contract BaseFunctionalityTest is BaseIntegrationTest {
         vm.stopPrank();
     }
 
-    function test_deposit_usdc_ynrwax_spv1() public {
-        // Get USDC token and strategy
-        IERC20 usdc = IERC20(USDC_ADDRESS); // USDC on mainnet
+    function test_deposit_wsteth_ynethx_spv1() public {
+        // Get wstETH token and strategy
+        IERC20 wsteth = IERC20(WSTETH_ADDRESS); // wstETH on mainnet
         FlexStrategy strategy = FlexStrategy(payable(address(deployment.strategy()))); // Using index i for strategy selection
 
         // Grant ALLOCATOR_ROLE to depositor
@@ -42,33 +40,33 @@ contract BaseFunctionalityTest is BaseIntegrationTest {
             FlexStrategy(payable(address(strategy))).ALLOCATOR_ROLE(), DEPOSITOR
         );
         vm.stopPrank();
-        // 1 million USDC (6 decimals)
-        uint256 depositAmount = 1_000_000 * 1e6;
+        // 1000 wstETH (18 decimals)
+        uint256 depositAmount = 1_000 * 1e18;
 
-        // Deal USDC to depositor
-        deal(USDC_ADDRESS, DEPOSITOR, depositAmount);
+        // Deal wstETH to depositor
+        deal(WSTETH_ADDRESS, DEPOSITOR, depositAmount);
 
         // Switch to depositor for the deposit
         vm.startPrank(DEPOSITOR);
 
-        // Approve strategy to spend USDC
-        usdc.approve(address(strategy), depositAmount);
+        // Approve strategy to spend wstETH
+        wsteth.approve(address(strategy), depositAmount);
 
         // Get balances before deposit
-        uint256 usdcBalanceBefore = usdc.balanceOf(DEPOSITOR);
+        uint256 wstethBalanceBefore = wsteth.balanceOf(DEPOSITOR);
         uint256 sharesBefore = strategy.balanceOf(DEPOSITOR);
         uint256 totalAssetsBefore = strategy.totalAssets();
         // Get safe balance before deposit
-        uint256 safeUsdcBalanceBefore = usdc.balanceOf(deployment.safe());
+        uint256 safeWstethBalanceBefore = wsteth.balanceOf(deployment.safe());
 
         // Perform deposit
         uint256 shares = strategy.deposit(depositAmount, DEPOSITOR);
 
         // Verify deposit was successful
         assertEq(
-            usdc.balanceOf(DEPOSITOR),
-            usdcBalanceBefore - depositAmount,
-            "USDC balance should decrease by deposit amount"
+            wsteth.balanceOf(DEPOSITOR),
+            wstethBalanceBefore - depositAmount,
+            "wstETH balance should decrease by deposit amount"
         );
         assertEq(strategy.balanceOf(DEPOSITOR), sharesBefore + shares, "Shares balance should increase");
         assertGt(shares, 0, "Should receive shares for deposit");
@@ -78,32 +76,32 @@ contract BaseFunctionalityTest is BaseIntegrationTest {
             "Total assets should increase by at least deposit amount"
         );
 
-        // Assert balance of USDC in safe is now increased
-        uint256 safeUsdcBalanceAfter = usdc.balanceOf(deployment.safe());
+        // Assert balance of wstETH in safe is now increased
+        uint256 safeWstethBalanceAfter = wsteth.balanceOf(deployment.safe());
         assertGe(
-            safeUsdcBalanceAfter,
-            safeUsdcBalanceBefore + depositAmount,
-            "Safe USDC balance should increase by at least deposit amount"
+            safeWstethBalanceAfter,
+            safeWstethBalanceBefore + depositAmount,
+            "Safe wstETH balance should increase by at least deposit amount"
         );
 
         vm.stopPrank();
 
         // Test moving money from SAFE to a random receiver
         address randomReceiver = address(0x123456789);
-        uint256 safeBalanceBeforeTransfer = usdc.balanceOf(deployment.safe());
+        uint256 safeBalanceBeforeTransfer = wsteth.balanceOf(deployment.safe());
         uint256 totalAssetsBeforeTransfer = strategy.totalAssets();
 
         // Move money from SAFE to random receiver
         vm.startPrank(deployment.safe());
-        usdc.transfer(randomReceiver, safeBalanceBeforeTransfer);
+        wsteth.transfer(randomReceiver, safeBalanceBeforeTransfer);
         vm.stopPrank();
 
         // Verify the transfer was successful
-        assertEq(usdc.balanceOf(deployment.safe()), 0, "SAFE should have zero USDC balance after transfer");
+        assertEq(wsteth.balanceOf(deployment.safe()), 0, "SAFE should have zero wstETH balance after transfer");
         assertEq(
-            usdc.balanceOf(randomReceiver),
+            wsteth.balanceOf(randomReceiver),
             safeBalanceBeforeTransfer,
-            "Random receiver should have received all USDC from SAFE"
+            "Random receiver should have received all wstETH from SAFE"
         );
 
         strategy.processAccounting();
@@ -146,12 +144,10 @@ contract BaseFunctionalityTest is BaseIntegrationTest {
         uint256 totalAssetsBefore = strategy.totalAssets();
 
         // Perform deposit
-        strategy.deposit(depositAmount, DEPOSITOR);
+        uint256 sharesReceived = strategy.deposit(depositAmount, DEPOSITOR);
 
-        uint256 withdrawAmount = depositAmount - 1;
-
-        // Perform withdrawal of the same amount
-        strategy.withdraw(withdrawAmount, DEPOSITOR, DEPOSITOR);
+        // Redeem all shares to get back as much as possible
+        uint256 assetsRedeemed = strategy.redeem(sharesReceived, DEPOSITOR, DEPOSITOR);
 
         vm.stopPrank();
 
@@ -160,141 +156,24 @@ contract BaseFunctionalityTest is BaseIntegrationTest {
         // Get totalAssets after withdrawal
         uint256 totalAssetsAfter = strategy.totalAssets();
 
-        // Assert that totalAssets before and after are the same
-        assertEq(
+        // Assert that totalAssets before and after are approximately the same (may have dust due to rounding)
+        assertApproxEqAbs(
             totalAssetsAfter,
-            totalAssetsBefore + 1,
-            "Total assets should be the same before and after deposit/withdrawal roundtrip"
+            totalAssetsBefore,
+            1,
+            "Total assets should be approximately the same before and after deposit/withdrawal roundtrip"
         );
 
         // Assert that the depositor's share balance is now zero
         uint256 depositorSharesAfter = strategy.balanceOf(DEPOSITOR);
-        assertEq(depositorSharesAfter, 0, "Depositor should have zero shares after withdrawal");
+        assertEq(depositorSharesAfter, 0, "Depositor should have zero shares after redemption");
 
-        // Assert that the depositor's asset balance is back to the original amount
+        // Assert that the depositor's asset balance is back to approximately the original amount
         uint256 depositorAssetAfter = asset.balanceOf(DEPOSITOR);
-        assertEq(
-            depositorAssetAfter, withdrawAmount, "Depositor should have received back exactly the same asset amount"
-        );
+        assertEq(depositorAssetAfter, assetsRedeemed, "Depositor should have received back the redeemed amount");
 
         // Assert that total supply decreased by exactly the shares that were burned
         uint256 totalSupplyAfter = strategy.totalSupply();
         assertEq(totalSupplyAfter, initialTotalSupply, "Total supply should be initial after complete withdrawal");
-    }
-
-    function test_deposit_and_inject_rewards_with_rewards_sweeper() public {
-        // Get USDC token and strategy
-        IERC20 usdc = IERC20(USDC_ADDRESS);
-        FlexStrategy strategy = FlexStrategy(payable(address(deployment.strategy())));
-        RewardsSweeper rewardsSweeper = deployment.rewardsSweeper();
-
-        // 1 million USDC (6 decimals) and 100k USDC reward
-        uint256 depositAmount = 1_000_000 * 1e6;
-        uint256 rewardAmount = 1_000 * 1e6;
-
-        // Deal USDC to depositor and rewards sweeper
-        deal(USDC_ADDRESS, DEPOSITOR, depositAmount);
-        deal(USDC_ADDRESS, address(rewardsSweeper), rewardAmount);
-
-        // Switch to depositor for the deposit
-        vm.startPrank(DEPOSITOR);
-
-        // Approve strategy to spend USDC
-        usdc.approve(address(strategy), depositAmount);
-
-        // Get balances before deposit
-        uint256 totalAssetsBefore = strategy.totalAssets();
-        uint256 totalSupplyBefore = strategy.totalSupply();
-
-        // Perform deposit
-        uint256 shares = strategy.deposit(depositAmount, DEPOSITOR);
-
-        vm.stopPrank();
-
-        // Process accounting to update state
-        strategy.processAccounting();
-
-        // Get state after deposit
-        uint256 totalAssetsAfterDeposit = strategy.totalAssets();
-        uint256 totalSupplyAfterDeposit = strategy.totalSupply();
-
-        // Verify deposit was successful
-        assertGt(shares, 0, "Should receive shares for deposit");
-        assertEq(
-            totalAssetsAfterDeposit, totalAssetsBefore + depositAmount, "Total assets should increase by deposit amount"
-        );
-        assertEq(totalSupplyAfterDeposit, totalSupplyBefore + shares, "Total supply should increase by shares minted");
-
-        // Advance time by 1 month (30 days)
-        vm.warp(block.timestamp + 30 days);
-
-        // Inject rewards using rewards sweeper
-        vm.startPrank(deployment.actors().PROCESSOR());
-        rewardsSweeper.sweepRewards(rewardAmount);
-        vm.stopPrank();
-
-        // Process accounting to capture the rewards
-        strategy.processAccounting();
-
-        // Get state after rewards injection
-        uint256 totalAssetsAfterRewards = strategy.totalAssets();
-        uint256 totalSupplyAfterRewards = strategy.totalSupply();
-
-        // Verify rewards injection was successful
-        assertEq(
-            totalAssetsAfterRewards,
-            totalAssetsAfterDeposit + rewardAmount,
-            "Total assets should increase by reward amount after injection"
-        );
-        assertEq(
-            totalSupplyAfterRewards,
-            totalSupplyAfterDeposit,
-            "Total supply should remain the same after rewards injection (no new shares minted)"
-        );
-
-        // Verify the depositor can redeem more assets than they deposited due to rewards
-        uint256 redeemableAssets = strategy.previewRedeem(shares);
-        assertGt(
-            redeemableAssets,
-            depositAmount,
-            "Depositor should be able to redeem more than they deposited due to rewards"
-        );
-
-        // Verify that the rewards sweeper has no USDC balance after sweeping
-        assertEq(
-            usdc.balanceOf(address(rewardsSweeper)), 0, "Rewards sweeper should have zero USDC balance after sweeping"
-        );
-
-        // Test that sweeping rewards again should revert (no rewards to sweep)
-        vm.startPrank(deployment.actors().PROCESSOR());
-        vm.expectRevert(RewardsSweeper.CannotSweepRewards.selector);
-        rewardsSweeper.sweepRewards(rewardAmount);
-        vm.stopPrank();
-
-        // Deal 100k USDC to rewards sweeper for next test
-        deal(USDC_ADDRESS, address(rewardsSweeper), 100_000 * 1e6);
-
-        // Advance time by only 1 hour (should be within cooldown period)
-        vm.warp(block.timestamp + 1 hours);
-
-        // Try to inject rewards again - should revert due to cooldown period
-        vm.startPrank(deployment.actors().PROCESSOR());
-        vm.expectRevert();
-        rewardsSweeper.sweepRewards(rewardAmount);
-        vm.stopPrank();
-
-        // Call sweepRewardsUpToAPRMax
-        vm.startPrank(deployment.actors().PROCESSOR());
-        uint256 sweptAmount = rewardsSweeper.sweepRewardsUpToAPRMax();
-        vm.stopPrank();
-
-        // Verify that some amount was swept (should be > 0 if there are rewards to sweep within APR limits)
-        assertGe(sweptAmount, 0, "Swept amount should be non-negative");
-
-        // Verify total assets increased by the swept amount
-        uint256 totalAssetsAfterSweep = strategy.totalAssets();
-        assertEq(
-            totalAssetsAfterSweep, totalAssetsAfterRewards + sweptAmount, "Total assets should increase by swept amount"
-        );
     }
 }

@@ -14,12 +14,12 @@ contract VaultMainnetUpgradeTest is BaseIntegrationTest {
         super.setUp();
     }
 
-    function test_usdc_ynrwax_spv1_views() public view {
-        // Get USDC token and strategy
-        IERC20 usdc = IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48); // USDC on mainnet
+    function test_wsteth_ynethx_lvg1_views() public view {
+        // Get wstETH token and strategy
+        IERC20 wsteth = IERC20(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0); // wstETH on mainnet
 
         // Test asset and share conversions
-        uint256 testAmount = 1000 * 1e6; // 1000 USDC
+        uint256 testAmount = 1000 * 1e18; // 1000 wstETH
         {
             uint256 previewDeposit = strategy.previewDeposit(testAmount);
             uint256 previewMint = strategy.previewMint(previewDeposit);
@@ -27,10 +27,12 @@ contract VaultMainnetUpgradeTest is BaseIntegrationTest {
             uint256 previewRedeem = strategy.previewRedeem(previewDeposit);
 
             assertGt(previewDeposit, 0, "Preview deposit should return shares");
-            assertApproxEqAbs(previewMint, testAmount, 1e6, "Preview mint should be approximately equal to test amount");
+            assertApproxEqAbs(
+                previewMint, testAmount, 1e18, "Preview mint should be approximately equal to test amount"
+            );
             assertGt(previewWithdraw, 0, "Preview withdraw should return shares needed");
             assertApproxEqAbs(
-                previewRedeem, testAmount, 1e6, "Preview redeem should be approximately equal to test amount"
+                previewRedeem, testAmount, 1e18, "Preview redeem should be approximately equal to test amount"
             );
         }
 
@@ -52,7 +54,7 @@ contract VaultMainnetUpgradeTest is BaseIntegrationTest {
             assertEq(maxRedeem, 0, "Max redeem should be 0 for user with no shares");
 
             // Test asset and share relationship
-            assertEq(strategy.asset(), address(usdc), "Asset should be USDC");
+            assertEq(strategy.asset(), address(wsteth), "Asset should be wstETH");
         }
 
         {
@@ -65,7 +67,7 @@ contract VaultMainnetUpgradeTest is BaseIntegrationTest {
                 convertToAssets, testAmount, 1, "Convert to assets should be approximately equal to original amount"
             );
 
-            assertGe(convertToAssets, 1e6, "Convert to assets should return a value greater than 1e6");
+            assertGe(convertToAssets, 1e18, "Convert to assets should return a value greater than 1e18");
         }
 
         // Get AccountingModule from deployment
@@ -74,20 +76,20 @@ contract VaultMainnetUpgradeTest is BaseIntegrationTest {
         {
             // Test AccountingModule view functions
             assertEq(accountingModule.strategy(), address(strategy), "AccountingModule strategy should match");
-            assertEq(accountingModule.baseAsset(), address(usdc), "AccountingModule base asset should be USDC");
+            assertEq(accountingModule.baseAsset(), address(wsteth), "AccountingModule base asset should be wstETH");
             assertEq(accountingModule.safe(), deployment.safe(), "AccountingModule safe should match deployment safe");
 
             // Test APY and timing parameters
             uint256 targetApy = accountingModule.targetApy();
 
-            assertEq(targetApy, 0.15 ether, "Target APY should be 15%");
+            assertEq(targetApy, 0.05 ether, "Target APY should be 5%");
         }
 
         // Test snapshots if any exist
         uint256 snapshotsLength = accountingModule.snapshotsLength();
         if (snapshotsLength > 0) {
             IAccountingModule.StrategySnapshot memory latestSnapshot = accountingModule.snapshots(snapshotsLength - 1);
-            assertGe(latestSnapshot.pricePerShare, 1e6, "Latest snapshot price per share should be greater than 0");
+            assertGe(latestSnapshot.pricePerShare, 1e18, "Latest snapshot price per share should be greater than 0");
             assertGt(latestSnapshot.timestamp, 0, "Latest snapshot timestamp should be greater than 0");
         }
 
