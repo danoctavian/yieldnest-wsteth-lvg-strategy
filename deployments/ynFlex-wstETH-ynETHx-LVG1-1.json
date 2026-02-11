@@ -1,0 +1,19 @@
+{
+  "admin": "0xfcad670592a3b24869C0b51a6c6FDED4F95D6975",
+  "baseAsset": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
+  "deployer": "0x8e56bb27Bf055C6415135D63398772CF7CF7331d",
+  "rateProvider": "0x6Fa1f7FA92D2c2c1696a530eF6791fd49073C5ab",
+  "safe": "0x24D2486F5b2C2c225B6be8B4f72D46349cBf4458",
+  "symbol": "ynFlex-wstETH-ynETHx-LVG1",
+  "timelock": "0x71f37E495da9cEb22C4D93cA02bD52075e3767Ee",
+  "useRewardsSweeper": false,
+  "ynFlex-wstETH-ynETHx-LVG1-accountingModule-implementation": "0x9848d3d31187B0d56fde5f55d1043FEd2c7d05b7",
+  "ynFlex-wstETH-ynETHx-LVG1-accountingModule-proxy": "0xB98f2313F280576ef4aA0CcAe36093386c600355",
+  "ynFlex-wstETH-ynETHx-LVG1-accountingModule-proxyAdmin": "0x7e73eE8D4bA48Bcc74D3331F3Ce70D4BB38243c3",
+  "ynFlex-wstETH-ynETHx-LVG1-accountingToken-implementation": "0xDAC4F5931f7D8C3e20212D4EcADb76863C982862",
+  "ynFlex-wstETH-ynETHx-LVG1-accountingToken-proxy": "0x802Ee5c9A6B1AA7C782889C59F2C3A2B51131af3",
+  "ynFlex-wstETH-ynETHx-LVG1-accountingToken-proxyAdmin": "0xAa23c31a32509cC922c1999C6D6529b3124e1497",
+  "ynFlex-wstETH-ynETHx-LVG1-implementation": "0x8dFe97D508317556129Ffe5E6783ea2b9e07F93F",
+  "ynFlex-wstETH-ynETHx-LVG1-proxy": "0x115B50649e50c2b36B3D2Ec0928E72492c85dA7D",
+  "ynFlex-wstETH-ynETHx-LVG1-proxyAdmin": "0xE4eBb64a5D66853bCEB9a9a61fa0DE2020647125"
+}

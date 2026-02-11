@@ -19,20 +19,17 @@ contract BaseIntegrationTest is Test {
     IAccountingToken public accountingToken;
 
     function setUp() public virtual {
-        /// For new deployments, uncomment the following: ///
+        /// For new deployments: ///
 
-        // deployment = new DeployStrategy();
-        // DeployStrategy(address(deployment)).run();
+        deployment = new DeployStrategy();
+        DeployStrategy(address(deployment)).run();
 
-        // // Approve strategy to spend unlimited funds from the SAFE
-        // address safe = deployment.safe();
-        // address baseAsset = deployment.baseAsset();
-        // vm.startPrank(safe);
-        // IERC20(baseAsset).approve(address(deployment.accountingModule()), type(uint256).max);
-        // vm.stopPrank();
-
-        deployment = new VerifyStrategy();
-        VerifyStrategy(address(deployment)).run();
+        // Approve strategy to spend unlimited funds from the SAFE
+        address safe = deployment.safe();
+        address baseAsset = deployment.baseAsset();
+        vm.startPrank(safe);
+        IERC20(baseAsset).approve(address(deployment.accountingModule()), type(uint256).max);
+        vm.stopPrank();
 
         strategy = FlexStrategy(payable(address(deployment.strategy())));
         accountingModule = strategy.accountingModule();
