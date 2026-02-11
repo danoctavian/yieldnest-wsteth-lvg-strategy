@@ -22,5 +22,4 @@ forge verify-bytecode --etherscan-api-key "$ETHERSCAN_API_KEY" "$ACCOUNTING_TOKE
 
 forge verify-bytecode --etherscan-api-key "$ETHERSCAN_API_KEY" "$FLEX_STRATEGY_ADDRESS" FlexStrategy:FlexStrategy --rpc-url "$RPC_URL"
 
-forge verify-bytecode --etherscan-api-key "$ETHERSCAN_API_KEY" "$REWARDS_SWEEPER_ADDRESS" RewardsSweeper:RewardsSweeper --rpc-url "$RPC_URL"
 
